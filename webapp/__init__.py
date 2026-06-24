@@ -5,7 +5,7 @@ from flask import Flask, render_template
 from webapp.forms import LoginForm
 
 app = Flask(__name__)
-app.config.from_pyfile('config.py')
+app.config.from_pyfile(str(Path(__file__).parent.parent / 'config.py'))
 # @login_manager.user_loader
 # def load_user(user_id):
 #    return db_session.get(User, int(user_id))
