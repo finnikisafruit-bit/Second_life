@@ -2,7 +2,7 @@ import sys
 from getpass import getpass
 
 from db import db_session
-from webapp.models import User
+from webapp.product.models import User
 
 login = input('Введите логин:')
 
