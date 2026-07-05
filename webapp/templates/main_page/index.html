@@ -1,3 +1,21 @@
 {% extends "base.html"%}
 
-{% block content %}{% endblock %}
+{% block content %}
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            <div class="card-body">
+                <h5>{{ product.title }}</h5>
+                <p>Цена: {{ product.price }} ₽</p>
+                <p>Размер: {{ product.size }} ₽</p>
+                <p>Продавец: {{ product.owner.username }}</p>
+                <p class="text-muted">Город: {{ product.city }}</p>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>Товаров пока нет</p>
+    {% endfor %}
+</div>
+{% endblock %}

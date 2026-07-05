@@ -1,5 +1,5 @@
 from sqlalchemy import ForeignKey, String
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import Base, engine
 
@@ -12,9 +12,9 @@ class Product(Base):
     size: Mapped[str] = mapped_column(String(20), nullable=False)
     price: Mapped[int] = mapped_column(nullable=False)
     description: Mapped[str] = mapped_column(String(300))
-    url: Mapped[str] = mapped_column(String(300))
     city: Mapped[str] = mapped_column(String(120))
     condition: Mapped[str] = mapped_column(String(120))
+    owner: Mapped['User'] = relationship(back_populates='products')
 
     def __repr__(self):
         return f'<Product id: {self.id}, {self.title}>'
