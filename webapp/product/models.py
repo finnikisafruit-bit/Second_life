@@ -1,3 +1,5 @@
+from typing import Optional
+
 from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -14,6 +16,7 @@ class Product(Base):
     description: Mapped[str] = mapped_column(String(300))
     city: Mapped[str] = mapped_column(String(120))
     condition: Mapped[str] = mapped_column(String(120))
+    image_filename: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     owner: Mapped['User'] = relationship(back_populates='products')
 
     def __repr__(self):

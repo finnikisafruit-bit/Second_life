@@ -32,7 +32,7 @@ def process_login():
             flash('Вы успешно  залогинились')
             return redirect(url_for('main_page.index'))
     flash('Неправильное имя или пароль')
-    return redirect(url_for('user.login'))
+    return render_template('user/login.html', page_title='Авторизация', form=form)
 
 
 @blueprint.route('/logout')
@@ -56,15 +56,12 @@ def process_register():
     form = RegisterForm()
 
     if form.validate_on_submit():
-        if db_session.query(User).filter_by(login=form.login.data).first():
-            flash('Пользователь с таким логином уже существует')
-            return redirect(url_for('user.register'))
-
-        if db_session.query(User).filter_by(email=form.email.data).first():
-            flash('Пользователь с такой почтой уже существует')
-            return redirect(url_for('user.register'))
-
-        new_user = User(login=form.login.data, email=form.email.data, role='user')
+        new_user = User(
+            login=form.login.data,
+            username=form.username.data,
+            email=form.email.data,
+            role='user',
+        )
         new_user.set_password(form.password.data)
 
         db_session.add(new_user)
@@ -73,5 +70,8 @@ def process_register():
         flash('Вы зарегистрировались')
         return redirect(url_for('user.login'))
 
-    flash('Вы ввели неправильные данные')
-    return redirect(url_for('user.register'))
+    return render_template(
+        'user/register.html',
+        page_title='Регистрация',
+        form=form,
+    )

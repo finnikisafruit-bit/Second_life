@@ -2,7 +2,7 @@ import sys
 from getpass import getpass
 
 from db import db_session
-from webapp.product.models import User
+from webapp.user.models import User
 
 login = input('Введите логин:')
 
@@ -10,6 +10,7 @@ if db_session.query(User).filter_by(login=login).first():
     print('Пользователь с таким логином уже существует')
     sys.exit(0)
 
+username = input('Введите Ваше имя: ')
 email = input('Введите email: ')
 
 password1 = getpass('Введите пароль: ')
@@ -23,7 +24,7 @@ if db_session.query(User).filter_by(email=email).first():
     print('Пользователь с таким email уже существует')
     sys.exit(0)
 
-new_user = User(login=login, email=email, role='admin')
+new_user = User(login=login, username=username, email=email, role='admin')
 new_user.set_password(password1)
 
 db_session.add(new_user)

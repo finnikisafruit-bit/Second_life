@@ -1,23 +1,20 @@
 {% extends "base.html"%}
-
 {% block content %}
-<div class="row">
-    {% for product in products %}
-    <div class="col-md-4 mb-3">
-        <a href="{{ url_for('product.product_page', product_id=product.id) }}" class="text-decoration-none text-dark">
-            <div class="card">
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="card h-100 shadow-sm border-0">
                 <div class="card-body">
                     <h5>{{ product.title }}</h5>
                     <p>Цена: {{ product.price }} ₽</p>
-                    <p>Размер: {{ product.size }} </p>
+                    <p>Размер: {{ product.size }}</p>
+                    <p>Состояние: {{ product.condition }}</p>
+                    <p>Описание: {{ product.description }} </p>
                     <p>Продавец: {{ product.owner.username }}</p>
                     <p class="text-muted">Город: {{ product.city }}</p>
                 </div>
             </div>
-        </a>
+        </div>
     </div>
-    {% else %}
-    <p>Товаров пока нет</p>
-    {% endfor %}
 </div>
 {% endblock %}

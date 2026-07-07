@@ -13,7 +13,7 @@ blueprint = Blueprint('product', __name__, url_prefix='/product')
 def product_list():
     products = db_session.query(Product).filter_by(user_id=current_user.id).all()
     return render_template(
-        'product/product.html', page_title='Карточки товаров', products=products
+        'product/my_product.html', page_title='Карточки товаров', products=products
     )
 
 
@@ -51,3 +51,13 @@ def process_add_product():
 
     flash('Вы ввели неправильные данные')
     return redirect(url_for('product.add_product'))
+
+
+@blueprint.route('/<int:product_id>')
+def product_page(product_id):
+    product = db_session.query(Product).filter_by(id=product_id).first()
+    return render_template(
+        'product/product_page.html',
+        product=product,
+        page_title=f'Карточка товара: {product.title}',
+    )
