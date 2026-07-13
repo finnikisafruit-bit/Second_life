@@ -4,6 +4,7 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import Base, engine
+from webapp.user.models import Wishlist
 
 
 class Product(Base):
@@ -18,6 +19,7 @@ class Product(Base):
     condition: Mapped[str] = mapped_column(String(120))
     image_filename: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     owner: Mapped['User'] = relationship(back_populates='products')
+    wishlist_items: Mapped[list['Wishlist']] = relationship(back_populates='product')
 
     def __repr__(self):
         return f'<Product id: {self.id}, {self.title}>'

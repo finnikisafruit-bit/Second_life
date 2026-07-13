@@ -1,13 +1,14 @@
-from flask import Blueprint, flash, redirect, render_template, url_for
+from flask import Blueprint, flash, redirect, render_template, request, url_for
 from flask_login import (
     current_user,
+    login_required,
     login_user,
     logout_user,
 )
 
 from db import db_session
 from webapp.user.forms import LoginForm, RegisterForm
-from webapp.user.models import User
+from webapp.user.models import User, Wishlist
 
 blueprint = Blueprint('user', __name__, url_prefix='/users')
 
@@ -75,3 +76,53 @@ def process_register():
         page_title='Регистрация',
         form=form,
     )
+
+
+@blueprint.route('/wishlist')
+@login_required
+def wishlist():
+    products = [item.product for item in current_user.wishlist_items]
+    return render_template(
+        'user/wishlist.html',
+        page_title='Избранное',
+        products=products,
+    )
+
+
+@blueprint.route('/process-wishlist-add', methods=['POST'])
+@login_required
+def process_wishlist_add():
+    product_id = int(request.form['product_id'])
+
+    exists = (
+        db_session.query(Wishlist)
+        .filter_by(
+            user_id=current_user.id,
+            product_id=product_id,
+        )
+        .first()
+    )
+
+    if exists:
+        flash('Товар уже в избранном')
+    else:
+        db_session.add(Wishlist(user_id=current_user.id, product_id=product_id))
+        db_session.commit()
+        flash('Добавлено в избранное')
+    return redirect(url_for('product.product_page', product_id=product_id))
+
+
+@blueprint.route('/process-wishlist-remove', methods=['POST'])
+@login_required
+def process_wishlist_remove():
+    product_id = int(request.form['product_id'])
+    item = (
+        db_session.query(Wishlist)
+        .filter_by(user_id=current_user.id, product_id=product_id)
+        .first()
+    )
+    if item:
+        db_session.delete(item)
+        db_session.commit()
+        flash('Товар удален из избранного')
+    return redirect(url_for('user.wishlist'))

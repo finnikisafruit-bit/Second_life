@@ -12,6 +12,12 @@
                     <p>Описание: {{ product.description }} </p>
                     <p>Продавец: {{ product.owner.username }}</p>
                     <p class="text-muted">Город: {{ product.city }}</p>
+                    {% if current_user.is_authenticated %}
+                    <form method="POST" action="{{ url_for('user.process_wishlist_add') }}">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <button type="submit">В избранное</button>
+                    </form>
+                    {% endif %}
                 </div>
             </div>
         </div>
