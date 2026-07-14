@@ -7,7 +7,7 @@ from flask_login import (
 )
 
 from db import db_session
-from webapp.user.forms import LoginForm, RegisterForm
+from webapp.user.forms import EditProfileForm, LoginForm, RegisterForm
 from webapp.user.models import User, Wishlist
 
 blueprint = Blueprint('user', __name__, url_prefix='/users')
@@ -126,3 +126,46 @@ def process_wishlist_remove():
         db_session.commit()
         flash('Товар удален из избранного')
     return redirect(url_for('user.wishlist'))
+
+
+@blueprint.route('/profile')
+@login_required
+def profile():
+    title = 'Профиль пользователя'
+    return render_template('user/profile.html', page_title=title)
+
+
+@blueprint.route('/edit-profile')
+@login_required
+def edit_profile():
+
+    form = EditProfileForm()
+    form.username.data = current_user.username
+    form.email.data = current_user.email
+    return render_template(
+        'user/edit_profile.html',
+        page_title='Редактирование профиля',
+        form=form,
+    )
+
+
+@blueprint.route('/process-edit-profile', methods=['POST'])
+@login_required
+def process_edit_profile():
+    form = EditProfileForm()
+
+    if form.validate_on_submit():
+        current_user.username = form.username.data
+        current_user.email = form.email.data
+        if form.password.data:
+            current_user.set_password(form.password.data)
+        db_session.commit()
+
+        flash('Вы успешно изменили данные')
+        return redirect(url_for('user.profile'))
+
+    return render_template(
+        'user/edit_profile.html',
+        page_title='Редактирование профиля',
+        form=form,
+    )
