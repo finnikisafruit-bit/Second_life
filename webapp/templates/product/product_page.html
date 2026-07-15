@@ -2,22 +2,38 @@
 {% block content %}
 <div class="container">
     <div class="row justify-content-center">
-        <div class="col-md-6">
+        <div class="col-md-10">
             <div class="card h-100 shadow-sm border-0">
                 <div class="card-body">
-                    <h5>{{ product.title }}</h5>
-                    <p>Цена: {{ product.price }} ₽</p>
-                    <p>Размер: {{ product.size }}</p>
-                    <p>Состояние: {{ product.condition }}</p>
-                    <p>Описание: {{ product.description }} </p>
-                    <p>Продавец: {{ product.owner.username }}</p>
-                    <p class="text-muted">Город: {{ product.city }}</p>
-                    {% if current_user.is_authenticated %}
-                    <form method="POST" action="{{ url_for('user.process_wishlist_add') }}">
-                        <input type="hidden" name="product_id" value="{{ product.id }}">
-                        <button type="submit">В избранное</button>
-                    </form>
-                    {% endif %}
+                    <div class="row">
+                        <div class="col-md-7">
+                            <h5>{{ product.title }}</h5>
+                            <p>Цена: {{ product.price }} ₽</p>
+                            <p>Размер: {{ product.size }}</p>
+                            <p>Состояние: {{ product.condition }}</p>
+                            <p>Описание: {{ product.description }} </p>
+                            <p>Продавец: {{ product.owner.username }}</p>
+                            <p class="text-muted">Город: {{ product.city }}</p>
+                            {% if current_user.is_authenticated and product.user_id != current_user.id %}
+                            <form method="POST" action="{{ url_for('user.process_wishlist_add') }}">
+                                <input type="hidden" name="product_id" value="{{ product.id }}">
+                                <button type="submit" class="btn btn-outline-primary">В избранное</button>
+                            </form>
+                            {% endif %}
+                            {% if current_user.is_authenticated and product.user_id == current_user.id %}
+                            <a href="{{ url_for('product.edit_product', product_id=product.id) }}"
+                                class="btn btn-warning">
+                                Редактировать товар
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="col-md-5">
+                            {% if product.image_filename %}
+                            <img src="{{ url_for('static', filename='images/products/'+product.image_filename)  }}"
+                                alt="Картинка">
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
