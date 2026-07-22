@@ -1,6 +1,10 @@
+from flask_login import current_user
 from flask_wtf import FlaskForm
 from wtforms import BooleanField, EmailField, PasswordField, StringField, SubmitField
-from wtforms.validators import DataRequired, Email, EqualTo
+from wtforms.validators import DataRequired, Email, EqualTo, ValidationError
+
+from db import db_session
+from webapp.user.models import User
 
 
 class LoginForm(FlaskForm):
@@ -20,6 +24,11 @@ class LoginForm(FlaskForm):
 
 class RegisterForm(FlaskForm):
     login = StringField(
+        'Ваш логин',
+        validators=[DataRequired()],
+        render_kw={'class': 'form-control w-50'},
+    )
+    username = StringField(
         'Имя пользователя',
         validators=[DataRequired()],
         render_kw={'class': 'form-control w-50'},
@@ -44,3 +53,50 @@ class RegisterForm(FlaskForm):
     )
 
     submit = SubmitField('Отправить', render_kw={'class': 'btn btn-primary'})
+
+    def validate_login(self, login):
+        login_count = db_session.query(User).filter_by(login=login.data).count()
+        if login_count > 0:
+            raise ValidationError('Пользователь с таким логином уже зарегистрирован')
+
+    def validate_email(self, email):
+        email_count = db_session.query(User).filter_by(email=email.data).count()
+        if email_count > 0:
+            raise ValidationError(
+                'Пользователь с такой электронной почтой уже зарегистрирован'
+            )
+
+
+class EditProfileForm(FlaskForm):
+    username = StringField(
+        'Имя пользователя',
+        validators=[DataRequired()],
+        render_kw={'class': 'form-control w-50'},
+    )
+    email = EmailField(
+        'Почта',
+        validators=[DataRequired(), Email()],
+        render_kw={'class': 'form-control w-50'},
+    )
+    password = PasswordField(
+        'Пароль',
+        validators=[DataRequired()],
+        render_kw={'class': 'form-control w-50'},
+    )
+    password1 = PasswordField(
+        'Повторите пароль',
+        validators=[
+            DataRequired(),
+            EqualTo('password', message='Пароли не совпадают'),
+        ],
+        render_kw={'class': 'form-control w-50'},
+    )
+
+    submit = SubmitField('Отправить', render_kw={'class': 'btn btn-primary'})
+
+    def validate_email(self, email):
+        user = db_session.query(User).filter_by(email=email.data).first()
+        if user and user.id != current_user.id:
+            raise ValidationError(
+                'Пользователь с такой электронной почтой уже зарегистрирован'
+            )

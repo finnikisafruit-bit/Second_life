@@ -3,15 +3,8 @@
 {% block content %}
 <div class="row">
     <div class="col-4">
-        <form action="{{ url_for('user.process_register') }}" method="POST">
+        <form action="{{ url_for('user.process_edit_profile') }}" method="POST">
             {{ form.hidden_tag() }}
-            <div class="form-group">
-                {{ form.login.label }}
-                {{ form.login() }}
-                {% for error in form.login.errors %}
-                <div class="text-danger">{{ error }}</div>
-                {% endfor %}
-            </div>
             <div class="form-group">
                 {{ form.username.label }}
                 {{ form.username() }}
@@ -41,11 +34,12 @@
                 {% endfor %}
             </div>
             {{ form.submit() }}
-            <a href="{{ url_for('user.login') }}">Уже есть аккаунт? Войдите</a>
         </form>
     </div>
     <div class="col-8">
 
     </div>
 </div>
+
+
 {% endblock %}

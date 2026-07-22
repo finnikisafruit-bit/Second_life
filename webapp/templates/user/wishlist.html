@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row">
+    {% for product in products %}
+    <div class="col-md-4 mb-3">
+        <div class="card">
+            {% if product.image_filename %}
+            <img src="{{ url_for('static', filename='images/products/' + product.image_filename) }}"
+                class="card-img-top" alt="Картинка" style="height: 180px; object-fit: cover;">
+            {% endif %}
+            <div class="card-body">
+                <h5>{{ product.title }}</h5>
+                <p>Цена: {{ product.price }} ₽</p>
+                <p>Размер: {{ product.size }}</p>
+                <p class="text-muted">Город: {{ product.city }}</p>
+                <a href="{{ url_for('product.product_page', product_id=product.id) }}" class="btn btn-primary btn-sm">
+                    Открыть
+                </a>
+                <form method="POST" action="{{ url_for('user.process_wishlist_remove') }}" class="d-inline">
+                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                    <button type="submit" class="btn btn-danger btn-sm">Убрать</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <p>В избранном пока ничего нет</p>
+    {% endfor %}
+</div>
+{% endblock %}
