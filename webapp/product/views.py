@@ -6,8 +6,8 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
 from db import db_session
-from webapp.product.forms import AddProductForm, EditProductForm
-from webapp.product.models import Product
+from webapp.product.forms import AddProductForm, CommentForm, EditProductForm
+from webapp.product.models import Comment, Product
 
 UPLOAD_FOLDER = os.path.join('webapp', 'static', 'images', 'products')
 
@@ -94,36 +94,31 @@ def edit_product(product_id):
     )
 
 
-@blueprint.route('/process-edit-product/<int:product_id>', methods=['POST'])
+@blueprint.route('/process-add-comment/<int:product_id>', methods=['POST'])
 @login_required
-def process_edit_product(product_id):
+def process_add_comment(product_id):
     product = db_session.get(Product, product_id)
 
     if product is None:
         flash('Товар не найден')
         return redirect(url_for('main_page.index'))
-    if product.user_id != current_user.id:
-        flash('Вы не можете редактировать чужой товар')
-        return redirect(url_for('product.product_page', product_id=product_id))
 
-    form = EditProductForm()
+    form = CommentForm()
 
     if form.validate_on_submit():
-        product.title = form.title.data
-        product.size = str(form.size.data)
-        product.price = form.price.data
-        product.description = form.description.data
-        product.city = form.city.data
-        product.condition = form.condition.data
-        if form.image.data:
-            file = form.image.data
-            filename = secure_filename(file.filename)
-            unique_name = f'{uuid.uuid4().hex}_{filename}'
-            file.save(os.path.join(UPLOAD_FOLDER, unique_name))
-            product.image_filename = unique_name
+        comment = Comment(
+            user_id=current_user.id,
+            product_id=product.id,
+            text=form.text.data,
+        )
+
+        db_session.add(comment)
         db_session.commit()
 
-        flash('Вы успешно изменили данные')
+        flash('Комментарий добавлен')
+        return redirect(url_for('product.product_page', product_id=product.id))
+    else:
+        flash('Комментарий не добавлен')
         return redirect(url_for('product.product_page', product_id=product.id))
 
     return render_template(
@@ -137,8 +132,17 @@ def process_edit_product(product_id):
 @blueprint.route('/<int:product_id>')
 def product_page(product_id):
     product = db_session.query(Product).filter_by(id=product_id).first()
+    comments = (
+        db_session.query(Comment)
+        .filter_by(product_id=product_id)
+        .order_by(Comment.id)
+        .all()
+    )
+    form = CommentForm()
     return render_template(
         'product/product_page.html',
         product=product,
+        comments=comments,
+        form=form,
         page_title=f'Карточка товара: {product.title}',
     )

@@ -10,7 +10,7 @@ from sqlalchemy import engine_from_config, pool
 
 from config import PASSWORD_POSTGRESQL
 from db import Base
-from webapp.product.models import Product  # noqa: F401
+from webapp.product.models import Comment, Product  # noqa: F401
 from webapp.user.models import User, Wishlist  # noqa: F401
 
 # this is the Alembic Config object, which provides
