@@ -41,6 +41,15 @@
                         <div class="mb-3 pb-3 border-bottom">
                             <div class="fw-semibold">{{ comment.author.username }}</div>
                             <p class="mb-0 mt-1">{{ comment.text }}</p>
+                            {% if current_user.is_authenticated and comment.user_id == current_user.id %}
+                            <form method="POST"
+                                action="{{ url_for('product.process_delete_comment', comment_id=comment.id  )}}"
+                                class="mt-1">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                            </form>
+                            <a href="{{ url_for('product.edit_comment', comment_id=comment.id) }}"
+                                class="btn btn-sm btn-outline-secondary mt-1">Редактировать</a>
+                            {% endif %}
                         </div>
                         {% endfor %}
                         {% else %}
@@ -61,7 +70,6 @@
                             <a href="{{ url_for('user.login') }}">Войдите</a>, чтобы оставить комментарий
                         </p>
                         {% endif %}
-
                     </div>
                 </div>
             </div>

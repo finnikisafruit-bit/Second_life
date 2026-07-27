@@ -1,0 +1,17 @@
+{% extends "base.html"%}
+
+{% block content %}
+<div class="row">
+    <div class="col-6">
+        <h5>Редактирование комментария</h5>
+        <form method="POST" action="{{ url_for('product.process_edit_comment', comment_id=comment.id) }}">
+            {{ form.hidden_tag() }}
+            <div class="mb-2">
+                {{ form.text.label }}
+                {{ form.text() }}
+            </div>
+            {{ form.submit() }}
+        </form>
+    </div>
+</div>
+{% endblock %}
