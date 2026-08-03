@@ -34,6 +34,43 @@
                             {% endif %}
                         </div>
                     </div>
+                    <div class="mt-4">
+                        <h5>Комментарии</h5>
+                        {% if comments %}
+                        {% for comment in comments %}
+                        <div class="mb-3 pb-3 border-bottom">
+                            <div class="fw-semibold">{{ comment.author.username }}</div>
+                            <p class="mb-0 mt-1">{{ comment.text }}</p>
+                            {% if current_user.is_authenticated and comment.user_id == current_user.id %}
+                            <form method="POST"
+                                action="{{ url_for('product.process_delete_comment', comment_id=comment.id  )}}"
+                                class="mt-1">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
+                            </form>
+                            <a href="{{ url_for('product.edit_comment', comment_id=comment.id) }}"
+                                class="btn btn-sm btn-outline-secondary mt-1">Редактировать</a>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                        {% else %}
+                        <p class="text-muted">Пока нет комментариев</p>
+                        {% endif %}
+                        {% if current_user.is_authenticated %}
+                        <form method="POST" action="{{ url_for('product.process_add_comment', product_id=product.id) }}"
+                            class="mb-4">
+                            {{ form.hidden_tag() }}
+                            <div class="mb-2">
+                                {{ form.text.label }}
+                                {{ form.text() }}
+                            </div>
+                            {{ form.submit() }}
+                        </form>
+                        {% else %}
+                        <p class="text-muted">
+                            <a href="{{ url_for('user.login') }}">Войдите</a>, чтобы оставить комментарий
+                        </p>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>

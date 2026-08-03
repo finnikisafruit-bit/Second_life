@@ -4,7 +4,7 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from db import Base, engine
-from webapp.user.models import Wishlist
+from webapp.user.models import User, Wishlist
 
 
 class Product(Base):
@@ -20,9 +20,20 @@ class Product(Base):
     image_filename: Mapped[Optional[str]] = mapped_column(String(120), nullable=True)
     owner: Mapped['User'] = relationship(back_populates='products')
     wishlist_items: Mapped[list['Wishlist']] = relationship(back_populates='product')
+    comments: Mapped[list['Comment']] = relationship(back_populates='product')
 
     def __repr__(self):
         return f'<Product id: {self.id}, {self.title}>'
+
+
+class Comment(Base):
+    __tablename__ = 'comments'
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey('users.id'))
+    product_id: Mapped[int] = mapped_column(ForeignKey('products.id'))
+    text: Mapped[str] = mapped_column(String(300), nullable=False)
+    author: Mapped['User'] = relationship(back_populates='comments')
+    product: Mapped['Product'] = relationship(back_populates='comments')
 
 
 if __name__ == '__main__':

@@ -16,6 +16,7 @@ class User(UserMixin, Base):
     role: Mapped[str] = mapped_column(String(120), index=True, default='user')
     products: Mapped[list['Product']] = relationship(back_populates='owner')
     wishlist_items: Mapped[list['Wishlist']] = relationship(back_populates='user')
+    comments: Mapped[list['Comment']] = relationship(back_populates='author')
 
     def set_password(self, password):
         self.password = generate_password_hash(password)

@@ -6,8 +6,8 @@ from flask_login import current_user, login_required
 from werkzeug.utils import secure_filename
 
 from db import db_session
-from webapp.product.forms import AddProductForm, EditProductForm
-from webapp.product.models import Product
+from webapp.product.forms import AddProductForm, CommentForm, EditProductForm
+from webapp.product.models import Comment, Product
 
 UPLOAD_FOLDER = os.path.join('webapp', 'static', 'images', 'products')
 
@@ -134,11 +134,118 @@ def process_edit_product(product_id):
     )
 
 
+@blueprint.route('/process-add-comment/<int:product_id>', methods=['POST'])
+@login_required
+def process_add_comment(product_id):
+    product = db_session.get(Product, product_id)
+
+    if product is None:
+        flash('Товар не найден')
+        return redirect(url_for('main_page.index'))
+
+    form = CommentForm()
+
+    if form.validate_on_submit():
+        comment = Comment(
+            user_id=current_user.id,
+            product_id=product.id,
+            text=form.text.data,
+        )
+
+        db_session.add(comment)
+        db_session.commit()
+
+        flash('Комментарий добавлен')
+        return redirect(url_for('product.product_page', product_id=product.id))
+    else:
+        flash('Комментарий не добавлен')
+        return redirect(url_for('product.product_page', product_id=product.id))
+
+
+@blueprint.route('/process-delete-comment/<int:comment_id>', methods=['POST'])
+@login_required
+def process_delete_comment(comment_id):
+    comment = db_session.get(Comment, comment_id)
+
+    if comment is None:
+        flash('Комментарий не найден')
+        return redirect(url_for('main_page.index'))
+
+    if comment.user_id != current_user.id:
+        flash('Вы можете удалить только свой комментарий')
+        return redirect(url_for('product.product_page', product_id=comment.product.id))
+
+    product_id = comment.product_id
+    db_session.delete(comment)
+    db_session.commit()
+    flash('Комментарий удален')
+    return redirect(url_for('product.product_page', product_id=product_id))
+
+
+@blueprint.route('/edit_comment/<int:comment_id>')
+@login_required
+def edit_comment(comment_id):
+    comment = db_session.get(Comment, comment_id)
+
+    if comment is None:
+        flash('Комментарий не найден')
+        return redirect(url_for('main_page.index'))
+    if comment.user_id != current_user.id:
+        flash('Вы можете редактировать только свой комментарий')
+        return redirect(url_for('product.product_page', product_id=comment.product_id))
+
+    form = CommentForm()
+    form.text.data = comment.text
+    return render_template(
+        'product/edit_comment.html',
+        page_title='редактированиек комментария',
+        form=form,
+        comment=comment,
+    )
+
+
+@blueprint.route('/process-edit-comment/<int:comment_id>', methods=['POST'])
+@login_required
+def process_edit_comment(comment_id):
+    comment = db_session.get(Comment, comment_id)
+
+    if comment is None:
+        flash('Комментарий не найден')
+        return redirect(url_for('main_page.index'))
+    if comment.user_id != current_user.id:
+        flash('Вы можете редактировать только свой комментарий')
+        return redirect(url_for('product.product_page', product_id=comment.product_id))
+
+    form = CommentForm()
+
+    if form.validate_on_submit():
+        comment.text = form.text.data
+        db_session.commit()
+        flash('Вы успешно изменили комментарий')
+        return redirect(url_for('product.product_page', product_id=comment.product.id))
+
+    return render_template(
+        'product/edit_comment.html',
+        page_title='Редактирование комментария',
+        form=form,
+        comment=comment,
+    )
+
+
 @blueprint.route('/<int:product_id>')
 def product_page(product_id):
     product = db_session.query(Product).filter_by(id=product_id).first()
+    comments = (
+        db_session.query(Comment)
+        .filter_by(product_id=product_id)
+        .order_by(Comment.id)
+        .all()
+    )
+    form = CommentForm()
     return render_template(
         'product/product_page.html',
         product=product,
+        comments=comments,
+        form=form,
         page_title=f'Карточка товара: {product.title}',
     )

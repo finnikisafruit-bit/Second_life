@@ -7,7 +7,7 @@ from wtforms import (
     SubmitField,
     TextAreaField,
 )
-from wtforms.validators import DataRequired
+from wtforms.validators import DataRequired, Length
 
 
 class AddProductForm(FlaskForm):
@@ -89,3 +89,12 @@ class EditProductForm(FlaskForm):
         ],
     )
     submit = SubmitField('Сохранить', render_kw={'class': 'btn btn-primary'})
+
+
+class CommentForm(FlaskForm):
+    text = TextAreaField(
+        'Комментарий',
+        validators=[DataRequired(), Length(max=300)],
+        render_kw={'class': 'form-control', 'rows': 3},
+    )
+    submit = SubmitField('Отправить', render_kw={'class': 'btn btn-primary'})
