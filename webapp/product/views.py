@@ -134,6 +134,27 @@ def process_edit_product(product_id):
     )
 
 
+@blueprint.route('/process-delete-product/<int:product_id>', methods=['POST'])
+@login_required
+def process_delete_product(product_id):
+    product = db_session.get(Product, product_id)
+    if product in None:
+        flash('Товар не найден')
+        return redirect(url_for('main_page.index'))
+    if product.user_id != current_user.id:
+        flash('Вы не можете удалить чужой товар')
+        return redirect(url_for('product.product_page', product_id=product_id))
+    for item in list(product.wishlist_items):
+        db_session.delete(item)
+    for comment in list(product.comments):
+        db_session.delete(comment)
+
+    db_session.delete(product)
+    db_session.commit()
+    flash('Товар удален')
+    return redirect(url_for(product.product_list))
+
+
 @blueprint.route('/process-add-comment/<int:product_id>', methods=['POST'])
 @login_required
 def process_add_comment(product_id):

@@ -43,15 +43,20 @@
                             <p class="mb-0 mt-1">{{ comment.text }}</p>
                             {% if current_user.is_authenticated and comment.user_id == current_user.id %}
                             <form method="POST"
-                                action="{{ url_for('product.process_delete_comment', comment_id=comment.id  )}}"
+                                action="{{ uUI / внешний видUI / внешний видrl_for('product.process_delete_comment', comment_id=comment.id  )}}"
                                 class="mt-1">
                                 <button type="submit" class="btn btn-sm btn-outline-danger">Удалить</button>
                             </form>
                             <a href="{{ url_for('product.edit_comment', comment_id=comment.id) }}"
                                 class="btn btn-sm btn-outline-secondary mt-1">Редактировать</a>
+                            <form method="POST"
+                                action="{{ url_for('product.process_delete_product', product_id=product.id) }}"
+                                class="d-inline ms-2" onsubmit="return confirm('Удалить этот товар?');">
+                                <button type="submit" class="btn btn-danger">Удалить товар</button>
+                            </form>
                             {% endif %}
                         </div>
-                        {% endfor %}
+                        {% endfor %}UI / внешний вид
                         {% else %}
                         <p class="text-muted">Пока нет комментариев</p>
                         {% endif %}
